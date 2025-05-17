@@ -1,24 +1,73 @@
-# Compiled class file
-*.class
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Filter</title>
+    <style>
+        .error {
+            color: red;
+        }
+        .titleProperties {
+            color: #598eb4; text-align: center; font-size: 2em; 
+        }
+        .searchInput {
+            display: block; 
+            margin: 20px auto; 
+            width: 200px; 
+            padding: 7%; 
+            font-size: 1em; 
+        }
+    </style>
+</head>
+<body>
+<h1 class="titleProperties">Quote Search Filter</h1>
+    <input type="text" id="filter-input" class="searchInput" placeholder="Search...">
+    <div id="Error!" style="display: none;"></div>
+    <ul id="quotes-list"></ul>
 
-# Log file
-*.log
+    <script>
+        let quotes = []; // Declare array for quotes
+        const filter = document.getElementById('filter-input');
+        const quotes_List = document.getElementById('quotes-list'); 
+        const loadingMessage = document.getElementById('loading-message');
+        const errorMessage = document.getElementById('error-message');
 
-# BlueJ files
-*.ctxt
+        function displayQuotes(displaytheQuotes) {
+            quotes_List.innerHTML = ''; // Clears quotes_List
+            displaytheQuotes.forEach(quote => {
+                const li = document.createElement('li');
+                li.textContent = quote.quote;
+                quotes_List.appendChild(li);
+            });
+        }
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+        fetch('https://dummyjson.com/quotes') // Get the quotes from API
+            .then(response => {
+                if (!response.ok) { // To check if the response successful
+                    throw new Error('Network response was not ok');// Create an error if the request fails
+                }
+                return response.json(); // Convert from JSON into a javaScript obj
+            })
+            .then(data => {
+                quotes = data.quotes;
+                displayQuotes(quotes);
+            })
+            .catch(error => { // If something wrong
+                errorMessage.textContent = 'Failed to fetch quotes. Please try again later.';
+                consule.error('Error:',error);
+            })
+            .finally(() => {
+                loadingMessage.style.display = 'none';
+            });
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+        filter.addEventListener('input', () => {
+            const filterString = filter.value.toLowerCase(); // case insensitive
+            const filteredQuotes = quotes.filter(quote =>      // Creates new array for the matching quotes
+                quote.quote.toLowerCase().includes(filterString)
+            );
+            displayQuotes(filteredQuotes);
+        });
+    </script>
+</body>
+</html>
